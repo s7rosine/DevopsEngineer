@@ -1,0 +1,20 @@
+How to connect my instance to Github account?
+1. Connect to instance
+2. Generate the ssh key with this command: ssh-keygen (hit enter until the keys are generated)
+3. Copy the public key in the ".ssh" directory using this command: cat ~/.ssh/id_rsa.pub and stor it on your Github global settings configurations account
+4. Click on the global configuration on your top right hand corner then click on settings, click on SSH and GPG kEY
+5. Click on New Key, provide the name of the key and below you paste the key and click on ADD Key
+
+How to clonea Github Repository on my instanc?
+1. Go to your Github account, choose the specific repository
+2. Click on Code (in green) copy the SSH code
+3. Go on your instance terminal and clone the SSh code using the following command: git clone + the copied code
+4. CD into the repository
+
+After modifying the code, push to Github following these steps:
+1. Check if the changes are being tracked using the command : git status (changes made are red)
+2. Add the changes on the staging area using the command: Git add-A
+3. Use git status to verify if it has been added (become green)
+4. Move the changes to the local repository using command: git commit -m "write your comit message"
+5. Push the changes to the remote repository using the command: git push
+6. Go on the remote repository and refresh and you should be see the changes
