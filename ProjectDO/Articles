@@ -1,0 +1,23 @@
+FROM ubuntu
+
+# Update package lists and install necessary packages
+RUN apt-get update && \
+    apt-get install -y wget unzip apache2 vim
+
+# Set the working directory
+WORKDIR /jackye
+
+# Download and unzip articles
+RUN wget https://warfiles-for-docker.s3.amazonaws.com/app/articles.zip && \
+    unzip articles.zip && \
+    rm -rf articles.zip
+
+# Copy files to Apache web server directory
+RUN rm -rf /var/www/html/index.html && \
+    cp -r /jackye/articles/* /var/www/html/
+
+# Expose port 80
+EXPOSE 80
+
+# Start Apache in the foreground
+CMD ["apache2ctl", "-D", "FOREGROUND"]

@@ -1,0 +1,18 @@
+FROM httpd:latest
+VOLUME saves
+
+# Set working directory to /usr/local/apache2/htdocs
+WORKDIR /usr/local/apache2/htdocs
+
+# Remove everything in the working directory
+RUN rm -rf *
+
+# Download and unzip the developer code from the provided URL
+RUN apt-get update && apt-get install -y wget unzip
+RUN wget https://linuxdevopscourse.s3.amazonaws.com/halloween.zip && unzip halloween.zip && rm halloween.zip
+
+# Expose port 80 on the container
+EXPOSE 80
+
+
+

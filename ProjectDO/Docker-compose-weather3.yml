@@ -1,0 +1,84 @@
+version: "3"
+services:
+  UI:
+    image: devopseasylearning/thomisis-ui:v0.0.1
+    environment:
+     AUTH_HOST: auth
+     AUTH_PORT: 8080
+     WEATHER_HOST: weather
+     WEATHER_PORT: 5000
+     REDIS_USER: redis
+     REDIS_PASSWORD: redis
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    networks:
+      - weather
+    restart: always
+    depends_on:
+      - AUTH  # UI depends on Auth
+networks:
+  weather:
+  AUTH:
+    image: devopseasylearning/thomisis-auth:v0.0.1
+    environment:
+      DB_HOST: db
+      DB_PASSWORD: my-secret-pw
+    networks:
+      - weather
+    expose:
+      - 8080
+    depends_on:
+      - WEATHER
+  WEATHER:
+    image: devopseasylearning/thomisis-weather:v0.0.1
+    environment:
+      APIKEY: ecbc396f46mshb65cbb1f82cf334p1fcc87jsna5e962a3c542
+    networks:
+      - weather
+    expose:
+      - 5000
+    depends_on:
+      - DB
+      - REDIS
+  DB:
+    image: devopseasylearning/thomisis-db:v0.0.1
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - weather
+  REDIS:
+    image: redis
+    environment:
+      REDIS_USER: redis
+      REDIS_PASSWORD: redis
+    networks:
+      - weather
+    volumes:
+      - redis-data:/data
+
+volumes:
+  db-data:
+  redis-data:
+
+networks:
+  weather:
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+

@@ -1,0 +1,182 @@
+version: '3.3'
+
+services:
+  frontend:
+    build:
+      context: ./Dockerfile-frontend-worker
+    ports:
+      - 3000:3000
+    volumes:
+      - frontenddata:/usr/src/app
+    command: "./wait-for-it.sh db-postgress:5432 -- yarn run:server"
+    environment:
+      - DATABASE_HOST=database
+      - DATABASE_PORT= 5432
+    depends_on:
+      - worker
+      - storefront
+    networks:
+      - s7rosine
+
+  worker:
+    build:
+      context: ./
+    volumes:
+      - workerdata:/usr/src/app
+    environment:
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+    command: "./wait-for-it.sh db-postgress:5432 -- yarn run:worker"
+    depends_on:
+      - database-db-postgress
+      - database-db-postgress-replication
+      - mariadb
+    networks:
+      - s7rosine
+
+  storefront:
+    build:
+      context: ./
+    volumes:
+      - storefrontdata:/usr/src/app
+    environment:
+      - SERVER_API_HOST=http://server
+      - SERVER_API_PORT=3000
+      - SERVER_API_PATH=shop_api
+    ports:
+      - 4000:4000
+    depends_on:
+      - database-db-postgress
+      - database-db-postgress-replication
+      - mariadb
+
+  wordpress:
+    image: wordpress:4.7-php7.1-apache
+    depends_on:
+      - mariadb
+    environment:
+      - MONEI_OPERATION_MODE=live
+      - MONEI_TEST_CHANNEL_ID=test_channel_id
+      - MONEI_TEST_USER_ID=test_user_id
+      - MONEI_TEST_PASSWORD=test_password
+      - MONEI_LIVE_CHANNEL_ID=live_channel_id
+      - MONEI_LIVE_USER_ID=live_user_id
+      - MONEI_LIVE_PASSWORD=live_password
+      - WORDPRESS_DB_HOST=mariadb:3306
+      - WORDPRESS_DB_PASSWORD=password
+      - WORDPRESS_SITE_TITLE=some_site_title
+      - WORDPRESS_ADMIN_PASSWORD=1234
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - s7rosine
+
+  database-db-postgress:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=vendure
+    ports:
+      - 5432:5432
+    volumes:
+      - datadata:/var/lib/postgresql/data
+    networks:
+      - s7rosine
+
+  database-db-postgress-replication:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=vendure
+    ports:
+      - 5433:5432
+
+  mariadb:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - 3306:3306
+    networks:
+      - s7rosine
+
+  redis01cashing:
+    image: redis:6.0-alpine
+    volumes:
+      - redisdata01:/data
+    networks:
+      - s7rosine
+
+  redis02cashing:
+    image: redis:6.0-alpine
+    volumes:
+      - redisdata02:/data
+    networks:
+      - s7rosine
+
+  redis03cashing:
+    image: redis:6.0-alpine
+    volumes:
+      - redisdata03:/data
+    networks:
+      - s7rosine
+
+  redis-sentinel-01-failover:
+    image: redis:6.0-alpine
+    volumes:
+      - sentineldata01:/data
+    networks:
+      - s7rosine
+
+  redis-sentinel-02-failover:
+    image: redis:6.0-alpine
+    volumes:
+      - sentineldata02:/data
+    networks:
+      - s7rosine
+
+  redis-sentinel-03-failover:
+    image: redis:6.0-alpine
+    volumes:
+      - sentineldata03:/data
+    networks:
+      - s7rosine
+
+networks:
+  s7rosine:
+    driver: bridge
+volumes:
+  sentineldata03:
+    driver: local
+  sentineldata02:
+    driver: local
+  sentineldata01:
+    driver: local
+  redisdata03:
+    driver: local
+  redisdata02:
+    driver: local
+  redisdata01:
+    driver: local
+  datadata:
+    driver: local
+  storefrontdata:
+    driver: local
+  workerdata:
+    driver: local
+  frontenddata:
+    driver: local
+
+
+  
+
+
+
+
+
+
+
+
+
+  

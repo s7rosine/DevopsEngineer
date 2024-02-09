@@ -1,0 +1,14 @@
+# Stage 1: Build Stage
+FROM node:14 as builder
+
+WORKDIR /usr/src/app
+
+# Copy the necessary files for building the application
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+EXPOSE 3000
+
+CMD ["npm", "start"]
+

@@ -1,0 +1,22 @@
+FROM httpd
+RUN apt update
+RUN apt install docker .io
+RUN docker run -itd --nameS7Rosine -p 3731:80 httpd
+RUN Docker ps
+RUN docker exec -it bed187220f2d bash
+RUN apt update
+RUN apt install unzip
+RUN apt install wget
+RUN rm -rf index.html
+RUN wgethttps://warfiles-for-docker.s3.amazonaws.com/app/articles.zip
+RUN unzip articles.zip
+RUN rm -rf articles.zip
+RUN exit 
+RUN docker ps
+RUN docker commit S7Rosine devopseasylearning/rosyimage:v.1.0.0
+RUN docker images
+RUN docker run -itd --name finale -p 8010:80 
+devopseasylearning/rosyimage:v.1.0.0
+RUN docker login
+RUN docker push devopseasylearning/rosyimage:v.1.0.0
+RUN https://hub.docker.com/u/devopseasylearning

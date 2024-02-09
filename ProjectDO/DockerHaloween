@@ -1,0 +1,19 @@
+FROM httpd
+
+# Create a volume for data persistence
+VOLUME /saves
+
+WORKDIR /usr/local/apache2/htdocs/
+
+RUN rm -rf *
+
+# Copy content into the container
+COPY . /usr/local/apache2/htdocs/
+
+# Expose port 80 for web access
+EXPOSE 80
+
+
+
+
+

@@ -1,0 +1,81 @@
+version: "3.5"
+services:
+  ui:
+    image: devopseasylearning/tarzan-ui:v0.0.1
+    environment:
+      - AUTH_HOST=auth
+      - AUTH_PORT=8080
+      - WEATHER_HOST=weather  
+      - WEATHER_PORT=5000
+      - REDIS_USER=redis
+      - REDIS_PASSWORD=redis
+    depends_on:
+      - auth
+      - redis
+    networks:
+      - weathernet
+    expose:
+      - "3000"
+    ports:
+      - "3003:3000"
+    hostname: thim-ui
+  auth:
+    image: devopseasylearning/tarzan-auth:v0.0.1
+    environment:
+      - DB_HOST=db
+      - DB_PASSWORD=my-secret-pw
+    expose:
+      - "8080"
+    ports:
+      - "8083:8080"
+    networks:
+      - weathernet
+    depends_on:
+      - db
+    hostname: thim-auth
+  weather:
+    image: devopseasylearning/tarzan-weather:v0.0.1
+    expose:
+      - "5000"
+    ports:
+      - "5002:5000"
+    environment:
+      - APIKEY=ecbc396f46mshb65cbb1f82cf334p1fcc87jsna5e962a3c542
+    networks:
+      - weathernet
+    restart: always
+    depends_on:
+      - db
+      - redis  # Weather depends on both db and redis
+    hostname: thim-weather
+  db:
+    image: devopseasylearning/tarzan-db:v0.0.1
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+    volumes:
+      - db-data:/var/lib/mysql
+    expose:
+      - "3306"
+    ports:
+      - "3308:3306"
+    networks:
+      - weathernet
+  redis:
+    image: redis
+    expose:
+      - "6379"
+    ports:
+      - "6381:6379"
+    networks:
+      - weathernet
+    environment:
+      - REDIS_USER=redis
+      - REDIS_PASSWORD=redis
+    volumes:
+      - redis-data:/data
+networks:
+  weathernet:
+    driver: bridge
+volumes:
+  db-data:
+  redis-data:

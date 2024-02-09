@@ -1,0 +1,14 @@
+# Use alpine base image
+FROM alpine:latest
+RUN apk --no-cache update
+
+RUN apk --no-cache add apache2
+WORKDIR /var/www/html
+RUN rm -rf /var/www/html/*
+# Create and set the working directory in the container
+
+
+COPY . .
+EXPOSE 80
+CMD ["httpd", "-D", "FOREGROUND"]
+

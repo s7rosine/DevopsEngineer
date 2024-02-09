@@ -1,0 +1,26 @@
+# Use Node.js base image
+FROM node:latest
+# Update package list and install necessary tools
+RUN apt-get update && \
+    apt-get install -y wget unzip
+# Create and set the working directory in the container
+WORKDIR /usr/src/app
+# Download and unzip the application code
+RUN wget https://group5-braincells.s3.amazonaws.com/node-ex-website.zip && \
+    unzip node-ex-website.zip && \
+    rm node-ex-website.zip
+# Copy the application source code to the working directory
+RUN cp -r node-ex-website/* . 
+# Expose the port the app runs on
+EXPOSE 3000
+# Install dependencies if needed (assuming package.json exists)
+RUN npm install
+# Command to start the application
+CMD ["npm", "start"]
+
+
+
+
+
+
+
