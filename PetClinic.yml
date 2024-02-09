@@ -1,1 +1,86 @@
-Pet Clinic Project
+version: '3.8'
+
+services:
+  petclinic:
+    image: eclipse-temurin:17-jdk-jammy
+    environment:
+      - SERVER_PORT=8080
+      - MYSQL_URL=jdbc:mysql://mysqlserver/petclinic
+    volumes:
+      - rosinedata/app
+    ports:
+      - 8081:8000
+      - 8081:8080
+    networks:
+      - rosinenet
+    depends_on:
+      - redis-0
+      - mysqlserver
+
+  mysqlserver:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_USER=petclinic
+      - MYSQL_PASSWORD=petclinic
+      - MYSQL_DATABASE=petclinic
+    volumes: 
+      - mysql_config:/etc/mysql/conf.d
+    networks:
+      - rosinenet
+
+ redis-0:
+    image: redis:4.0.2
+    volumes:
+      - redis-0:/etc/redis/redis.conf
+    networks: 
+      - rosinenet
+    depends_on:
+      - sentinel-0
+redis-1: 
+    image: redis:4.0.2
+    volumes:
+      - redis-2:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - rosinenet
+redis-2:
+    image: redis:4.0.2
+    volumes:
+      - redis-2:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - rosinenet
+sentinel-0:
+    image: redis:4.0.2
+    volumes:
+      - sentinel-0:/etc/redis/sentinel.conf     
+    networks:
+      - rosinenet
+sentinel-1:
+    image: redis:4.0.2
+    volumes:
+      - sentinel-1:/etc/redis/sentinel.conf  
+    command: redis-sentinel /etc/redis/sentinel.conf      
+    networks:
+      - rosinenet
+sentinel-2:
+    image: redis:4.0.2
+    volumes:
+      - sentinel-2:/etc/redis/sentinel.conf  
+    command: redis-sentinel /etc/redis/sentinel.conf      
+    networks:
+      - rosinenet
+networks:
+  rosinenet:
+    driver: bridge
+volumes:
+  rosinedata:
+  mysql_config:
+  redis-0:
+  redis-1:
+  redis-2:
+  sentinel-0:
+  sentinel-1:
+  sentinel-2:
