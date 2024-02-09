@@ -1,0 +1,134 @@
+version: '3.3'
+
+services:
+  yelb-ui:
+    image: mreferre/yelb-ui:0.7
+    networks:
+      - yelb-net
+    ports:
+      - 4555:80
+    depends_on:
+      - yelb-appserver
+    restart: always
+
+  yelb-appserver:
+    image: mreferre/yelb-appserver:0.5
+    networks:
+      - yelb-net
+    depends_on:
+      - yelb-db
+      - redis-server
+
+  yelb-db:
+    image: mreferre/yelb-db:0.5
+    networks:
+      - yelb-net
+    volumes:
+      - local:/var/lib/postgresql/data
+
+  odilia-db_replication01:
+    image: mreferre/yelb-db:0.5
+    networks:
+      - yelb-net
+    volumes:
+      - local-0:/var/lib/postgresql/data
+
+  odilia-db-replication02:
+    image: mreferre/yelb-db:0.5
+    networks:
+      - yelb-net
+    volumes:
+      - local-1:/var/lib/postgresql/data
+
+  odilia-db-replication03:
+    image: mreferre/yelb-db:0.5
+    networks:
+      - yelb-net
+    volumes:
+      - local-2:/var/lib/postgresql/data
+
+  redis-server:
+    image: redis:4.0.2
+    networks:
+      - yelb-net
+    volumes:
+      - redisvol:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+
+  odilia-redis01:
+    image: redis:4.0.2
+    networks:
+      - yelb-net
+    volumes:
+      - redisvol-0:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+
+  odilia-redis02:
+    image: redis:4.0.2
+    networks:
+      - yelb-net
+    volumes:
+      - redisvol-1:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+
+  odilia-redis-sentinel01:
+    image: redis:4.0.2
+    networks:
+      - yelb-net
+    volumes:
+      - localsentinel:/etc/redis/sentinel.conf
+    command: redis-sentinel /etc/redis/sentinel.conf
+    depends_on:
+      - redis-server
+      - odilia-redis01
+      - odilia-redis02
+
+  odilia-redis-sentinel02:
+    image: redis:4.0.2
+    networks:
+      - yelb-net
+    volumes:
+      - localsentinel-0:/etc/redis/sentinel.conf
+    command: redis-sentinel /etc/redis/sentinel.conf
+    depends_on:
+      - redis-server
+      - odilia-redis01
+      - odilia-redis02
+
+  odilia-redis-sentinel03:
+    image: redis:4.0.2
+    networks:
+      - yelb-net
+    volumes:
+      - localsentinel-1:/etc/redis/sentinel.conf
+    command: redis-sentinel /etc/redis/sentinel.conf
+    depends_on: 
+      - redis-server
+      - odilia-redis01
+      - odilia-redis02
+
+volumes:
+  local:
+    driver: local
+  local-0:
+    driver: local
+  local-1:
+    driver: local
+  local-2:
+    driver: local
+  redisvol:
+    driver: local
+  redisvol-0:
+    driver: local
+  redisvol-1:
+    driver: local
+  localsentinel:
+    driver: local
+  localsentinel-0:
+    driver: local
+  localsentinel-1:
+    driver: local
+
+networks:
+  yelb-net:
+    driver: bridge
